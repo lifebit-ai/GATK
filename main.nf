@@ -444,14 +444,13 @@ process ApplyBQSR {
 if (!params.bai){
   process IndexBam {
   tag "$bam"
-  publishDir "${params.outdir}/Bam", mode: 'copy'
   container 'lifebitai/samtools:latest'
 
   input:
   set val(name), file(bam) from bam_bqsr
 
   output:
-  set val(name), file("ready/${bam}"), file("ready/${bam}.bai") into indexed_bam_bqsr, indexed_bam_qc, indexed_bam_structural_variantcaller
+  set val(name), file("ready/${bam}"), file("ready/${bam}.bai") into indexed_bam_remove_mitochondrial
 
   script:
   """
@@ -468,9 +467,27 @@ if (!params.bai){
   """
   }
 } else {
-  bam_bqsr.merge(bai).into { indexed_bam_bqsr; indexed_bam_qc; indexed_bam_structural_variantcaller }
+  bam_bqsr.merge(bai).set { indexed_bam_remove_mitochondrial }
 }
 
+// Remove mitochondrial chromosomes
+process RemoveChromM {
+  tag "$bam"
+  publishDir "${params.outdir}/Bam", mode: 'copy'
+  container 'lifebitai/samtools:latest'
+
+  input:
+  set val(name), file(bam), file(bai) from indexed_bam_remove_mitochondrial
+
+  output:
+  set val(name), file("${name}_mitoless.bam"), file("${name}_mitoless.bam.bai") into indexed_bam_bqsr, indexed_bam_qc, indexed_bam_structural_variantcaller
+
+  script:
+  """
+  samtools idxstats ${bam} | cut -f 1 | grep -v MT | xargs samtools view -b ${bam} > ${name}_mitoless.bam  
+  samtools index ${name}_mitoless.bam 
+  """
+  }
 
 process RunBamQCrecalibrated {
     tag "$bam"
