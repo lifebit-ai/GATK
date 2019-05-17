@@ -484,7 +484,7 @@ process RemoveChromM {
 
   script:
   """
-  samtools idxstats ${bam} | cut -f 1 | grep -v MT | xargs samtools view -b ${bam} > ${name}_mitoless.bam  
+  samtools view -b ${bam} chr1 chr2 chr3 chr4 chr5 chr6 chr7 chr8 chr9 chr10 chr11 chr12 chr13 chr14 chr15 chr16 chr17 chr18 chr19 chr20 chr21 chr22 > ${name}_mitoless.bam
   samtools index ${name}_mitoless.bam 
   """
   }
