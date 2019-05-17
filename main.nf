@@ -251,7 +251,7 @@ if (!params.bam) {
     tag "$name"
     publishDir "${params.outdir}/fastqc", mode: 'copy',
         saveAs: {filename -> filename.indexOf(".zip") > 0 ? "zips/$filename" : "$filename"}
-    container 'lifebitai/fastqc'
+    container 'flowcraft/fastqc:0.11.7-1'
 
     input:
     set val(name), file(reads) from reads_fastqc
