@@ -455,6 +455,7 @@ if (!params.bai){
   script:
   """
   mkdir ready
+  cp ${bam} temp && mv temp ${bam}
   [[ `samtools view -H ${bam} | grep '@RG' | wc -l`   > 0 ]] && { mv $bam ready;}|| { picard AddOrReplaceReadGroups \
   I=${bam} \
   O=ready/${bam} \
