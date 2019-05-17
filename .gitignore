@@ -1,6 +1,8 @@
+.gitignore
 .nextflow*
 work/
 data/
 results/
 .DS_Store
 testdata/
+ARTISTIC_Bhead
