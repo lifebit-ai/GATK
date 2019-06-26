@@ -527,7 +527,6 @@ process HaplotypeCaller {
     -R $fasta \
     -O ${sample}.g.vcf \
     -I $bam_bqsr \
-    -ERC GVCF \
     -L $interval \
     -isr INTERSECTION \
     --native-pair-hmm-threads 1 \
@@ -699,4 +698,3 @@ if (!params.skip_fastqc && !params.skip_multiqc) {
     """
   }
 }
-
