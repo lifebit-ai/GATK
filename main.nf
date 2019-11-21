@@ -393,7 +393,11 @@ process MarkDuplicates {
   file "metrics.txt" into markdup_multiqc
 
   """
-  gatk MarkDuplicates -I $bam_sort -M metrics.txt -O ${name}_MarkDup.bam
+  gatk MarkDuplicatesSpark \
+  -I $bam_sort \
+  -M metrics.txt \
+  -O ${name}_MarkDup.bam \
+  --spark-runner LOCAL --spark-master local[${task.cpus}]
   """
 
 }
@@ -401,7 +405,7 @@ process MarkDuplicates {
 baserecalibrator_index = fasta_baserecalibrator.merge(fai_baserecalibrator, dict_baserecalibrator, dbsnp, dbsnp_idx, golden_indel, golden_indel_idx)
 baserecalibrator = bam_markdup_baserecalibrator.combine(baserecalibrator_index)
 
-process BaseRecalibrator {
+process BaseRecalibratorSpark {
   tag "$bam_markdup"
   container 'broadinstitute/gatk:latest'
 
@@ -418,13 +422,14 @@ process BaseRecalibrator {
   --known-sites $dbsnp \
   --known-sites $golden_indel \
   -O ${name}_recal_data.table \
-  -R $fasta
+  -R $fasta \
+  --spark-runner LOCAL --spark-master local[${task.cpus}]
   """
 }
 
 applybqsr = baserecalibrator_table.join(bam_markdup_applybqsr)
 
-process ApplyBQSR {
+process ApplyBQSRSpark {
   tag "$baserecalibrator_table"
   container 'broadinstitute/gatk:latest'
 
@@ -436,7 +441,11 @@ process ApplyBQSR {
 
   script:
   """
-  gatk ApplyBQSR -I $bam_markdup -bqsr $baserecalibrator_table -O ${name}_bqsr.bam
+  gatk ApplyBQSR \
+  -I $bam_markdup \
+  -bqsr $baserecalibrator_table \
+  -O ${name}_bqsr.bam \
+  --spark-runner LOCAL --spark-master local[${task.cpus}]
   """
 }
 }
