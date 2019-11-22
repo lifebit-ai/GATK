@@ -381,7 +381,7 @@ process RunBamQCmapped {
     """
 }
 
-process MarkDuplicates {
+process MarkDuplicatesSpark {
   tag "$bam_sort"
   container 'broadinstitute/gatk:latest'
 
@@ -483,7 +483,7 @@ if (!params.bai){
 
 process RunBamQCrecalibrated {
     tag "$bam"
-    container 'maxulysse/sarek:latest'
+    container 'broadinstitute/gatk:latest'
     memory threadmem_more
     cpus 4
 
