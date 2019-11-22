@@ -354,7 +354,7 @@ process BWA_sort {
 
 process RunBamQCmapped {
     tag "$bam"
-    container 'maxulysse/sarek:latest'
+    container 'nfcore/sarek:2.5.1'
     memory threadmem_more 
     cpus 4
 
@@ -483,7 +483,7 @@ if (!params.bai){
 
 process RunBamQCrecalibrated {
     tag "$bam"
-    container 'broadinstitute/gatk:latest'
+    container 'nfcore/sarek:2.5.1'
     memory threadmem_more
     cpus 4
 
