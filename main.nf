@@ -441,7 +441,7 @@ process ApplyBQSRSpark {
 
   script:
   """
-  gatk ApplyBQSR \
+  gatk ApplyBQSRSpark \
   -I $bam_markdup \
   -bqsr $baserecalibrator_table \
   -O ${name}_bqsr.bam \
