@@ -417,7 +417,7 @@ process BaseRecalibratorSpark {
   file ("*data.table") into baseRecalibratorReport
 
   """
-  gatk BaseRecalibrator \
+  gatk BaseRecalibratorSpark \
   -I $bam_markdup \
   --known-sites $dbsnp \
   --known-sites $golden_indel \
