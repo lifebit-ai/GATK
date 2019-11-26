@@ -354,7 +354,7 @@ process BWA_sort {
 
 process RunBamQCmapped {
     tag "$bam"
-    container 'maxulysse/sarek:latest'
+    container 'nfcore/sarek:2.5.1'
     memory threadmem_more 
     cpus 4
 
@@ -393,7 +393,10 @@ process MarkDuplicates {
   file "metrics.txt" into markdup_multiqc
 
   """
-  gatk MarkDuplicates -I $bam_sort -M metrics.txt -O ${name}_MarkDup.bam
+  gatk MarkDuplicates \
+  -I $bam_sort \
+  -M metrics.txt \
+  -O ${name}_MarkDup.bam
   """
 
 }
@@ -436,9 +439,12 @@ process ApplyBQSR {
 
   script:
   """
-  gatk ApplyBQSR -I $bam_markdup -bqsr $baserecalibrator_table -O ${name}_bqsr.bam
+  gatk ApplyBQSR \
+  -I $bam_markdup \
+  -bqsr $baserecalibrator_table \
+  -O ${name}_bqsr.bam
   """
-}
+  }
 }
 
 if (!params.bai){
@@ -474,7 +480,7 @@ if (!params.bai){
 
 process RunBamQCrecalibrated {
     tag "$bam"
-    container 'maxulysse/sarek:latest'
+    container 'nfcore/sarek:2.5.1'
     memory threadmem_more
     cpus 4
 
@@ -587,6 +593,17 @@ process StructuralVariantCallers {
   when: !params.skip_structural_variants
 
   script:
+
+  delly_deletion    =  params.delly_deletion    ? " --delly_deletion "    : ' '
+  delly_insertion   =  params.delly_insertion   ? " --delly_insertion "   : ' '
+  delly_inversion   =  params.delly_inversion   ? " --delly_inversion "   : ' '
+  delly_duplication =  params.delly_duplication ? " --delly_duplication " : ' '
+  breakseq          =  params.breakseq          ? " --breakseq "          : ' '
+  breakdancer       =  params.breakdancer       ? " --breakdancer "       : ' '
+  manta             =  params.manta             ? " --manta "             : ' '
+  lumpy             =  params.lumpy             ? " --lumpy "             : ' '
+  cnvnator          =  params.cnvnator          ? " --cnvnator "          : ' '
+
   // TODO: --filter_short_contigs (include when using real data) --svviz_only_validated_candidates (both filterings to reduce computations)
   """
   nf_work_dir=\$(pwd)
@@ -604,19 +621,9 @@ process StructuralVariantCallers {
     --bai input.bai \
     --fai ref.fa.fai \
     --ref_genome ref.fa.gz \
-    --prefix ${name} \
-    --delly_deletion \
-    --delly_insertion \
-    --delly_inversion \
-    --delly_duplication \
-    --breakseq \
-    --breakdancer \
-    --manta \
-    --lumpy \
-    --cnvnator \
+    --prefix ${name} ${delly_deletion} ${delly_insertion} ${delly_inversion} ${delly_duplication} ${breakseq}  ${breakdancer}  ${manta} ${lumpy} ${cnvnator} \
     --genotype \
-    --svviz 
-
+    --svviz
 
   mv /home/dnanexus/out/* \$nf_work_dir
   """
@@ -698,4 +705,3 @@ if (!params.skip_fastqc && !params.skip_multiqc) {
     """
   }
 }
-
